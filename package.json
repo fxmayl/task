@@ -1,0 +1,35 @@
+{
+  "name": "init",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "antd": "^3.19.3",
+    "babel-plugin-import": "^1.12.0",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.4",
+    "crypto": "^1.0.1",
+    "customize-cra": "^0.2.13",
+    "echarts": "^4.2.1",
+    "express": "^4.16.3",
+    "less": "^3.9.0",
+    "less-loader": "^5.0.0",
+    "moment": "^2.22.2",
+    "multer": "^1.4.1",
+    "react": "^16.8.6",
+    "react-app-rewired": "^1.6.2",
+    "react-dom": "^16.8.6",
+    "react-native": "^0.59.9",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-router-native": "^4.3.0",
+    "react-scripts": "^1.0.14",
+    "react-umeditor": "^1.0.15"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
