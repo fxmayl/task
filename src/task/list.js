@@ -33,32 +33,9 @@ class List extends Component {
         this.setState({selectedRowKeys});
     };
 
-    onJobStatusChange = (id,e) => {
+    onJobStatusChange = (id, e) => {
         console.log('任务状态值为:  ', e)
         console.log('id为:  ', id)
-        // fetch('http://localhost:8088/task/' + parseInt(this.props.match.params.id), {
-        //                                                                                 method: 'PUT',
-        //                                                                                 credentials: 'include',
-        //                                                                                 headers: {
-        //                                                                                     'Content-Type': 'application/json;charset:UTF-8',
-        //                                                                                 },
-        //                                                                             }).then(response => response.json()).then(
-        //     result => {
-        //         if (result.code === null || result.code === '' || result.code === undefined
-        //             || result.code === 400) {
-        //             notification['error']({
-        //                                       message: result.message,
-        //                                       description: result.message,
-        //                                   });
-        //         } else {
-        //             notification['success']({
-        //                                         message: result.message,
-        //                                         description: result.message,
-        //                                     });
-        //             that.props.history.push("/")
-        //         }
-        //     }
-        // )
     }
 
     onJobStatusChecked = (jobStatus) => {
@@ -94,9 +71,10 @@ class List extends Component {
     deleteEvent = () => {
         const that = this;
         fetch('http://localhost:8088/task/' + parseInt(that.state.selectedRowKeys[0]), {
-            method: 'DELETE',
-            credentials: 'include',
-        }).then(response => response.json()).then(
+                                                                                           method: 'DELETE',
+                                                                                           credentials: 'include',
+                                                                                       })
+            .then(response => response.json()).then(
             (result) => {
                 if (result.code === null || result.code === '' || result.code === undefined
                     || result.code === 400) {
@@ -135,7 +113,7 @@ class List extends Component {
             hideDefaultSelections: true,
             onSelection: this.onSelection,
         };
-
+        const that = this;
         const columns = [
             {
                 title: 'ID',
@@ -171,8 +149,34 @@ class List extends Component {
                 title: '状态',
                 dataIndex: 'jobStatus',
                 key: 'jobStatus',
-                render: (jobStatus,record) => (<Switch defaultChecked={this.onJobStatusChecked(jobStatus)}
-                                                onChange={this.onJobStatusChange}/>),
+                render: (jobStatus, record) => (
+                    <Switch defaultChecked={this.onJobStatusChecked(jobStatus)}
+                            onChange={(checked) => {
+                                console.log('任务状态值为:  ', checked);
+                                console.log('id为:  ', record.id);
+                                fetch('http://localhost:8088/task/' + parseInt(record.id) + '/'
+                                      + (checked ? 1 : 0), {
+                                                               method: 'PUT',
+                                                               credentials: 'include',
+                                                           })
+                                    .then(response => response.json()).then(
+                                    result => {
+                                        if (result.code === null || result.code === ''
+                                            || result.code === undefined
+                                            || result.code === 400) {
+                                            notification['error']({
+                                                                      message: result.message,
+                                                                      description: result.message,
+                                                                  });
+                                        } else {
+                                            notification['success']({
+                                                                        message: result.message,
+                                                                        description: result.message,
+                                                                    });
+                                        }
+                                    }
+                                )
+                            }}/>),
             },
             {
                 title: '备注',
