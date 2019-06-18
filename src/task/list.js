@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
-import { Table, Button, Input, Switch } from 'antd';
+import {Button, Input, notification, Switch, Table} from 'antd';
 import {withRouter} from 'react-router-dom'
 import '../App.css'
+
 const Search = Input.Search;
+
 class List extends Component {
 
     state = {
@@ -28,12 +30,35 @@ class List extends Component {
 
     onSelectChange = selectedRowKeys => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
+        this.setState({selectedRowKeys});
     };
 
-
-    onJobStatusChange = (checked) => {
-        console.log('任务状态值为:  ', checked)
+    onJobStatusChange = (id,e) => {
+        console.log('任务状态值为:  ', e)
+        console.log('id为:  ', id)
+        // fetch('http://localhost:8088/task/' + parseInt(this.props.match.params.id), {
+        //                                                                                 method: 'PUT',
+        //                                                                                 credentials: 'include',
+        //                                                                                 headers: {
+        //                                                                                     'Content-Type': 'application/json;charset:UTF-8',
+        //                                                                                 },
+        //                                                                             }).then(response => response.json()).then(
+        //     result => {
+        //         if (result.code === null || result.code === '' || result.code === undefined
+        //             || result.code === 400) {
+        //             notification['error']({
+        //                                       message: result.message,
+        //                                       description: result.message,
+        //                                   });
+        //         } else {
+        //             notification['success']({
+        //                                         message: result.message,
+        //                                         description: result.message,
+        //                                     });
+        //             that.props.history.push("/")
+        //         }
+        //     }
+        // )
     }
 
     onJobStatusChecked = (jobStatus) => {
@@ -45,7 +70,7 @@ class List extends Component {
 
     onSearch = (value) => {
         let url = 'http://localhost:8088/task/name/';
-        if(value === undefined || value === null || value === '') {
+        if (value === undefined || value === null || value === '') {
             url = 'http://localhost:8088/task';
         } else {
             url = url + value;
@@ -55,17 +80,51 @@ class List extends Component {
             credentials: 'include',
         }).then(response => response.json()).then(
             (result) => {
-                this.setState(
-                    {
-                        dataResult: result
-                    }
-                );
+                if (result.code === null || result.code === '' || result.code === undefined
+                    || result.code === 400) {
+                    notification['error']({
+                                              message: result.message,
+                                              description: result.message,
+                                          });
+                }
             }
         )
     }
 
-
-
+    deleteEvent = () => {
+        const that = this;
+        fetch('http://localhost:8088/task/' + parseInt(that.state.selectedRowKeys[0]), {
+            method: 'DELETE',
+            credentials: 'include',
+        }).then(response => response.json()).then(
+            (result) => {
+                if (result.code === null || result.code === '' || result.code === undefined
+                    || result.code === 400) {
+                    notification['error']({
+                                              message: result.message,
+                                              description: result.message,
+                                          });
+                } else {
+                    fetch('http://localhost:8088/task', {
+                        method: 'GET',
+                        credentials: 'include',
+                    }).then(response => response.json()).then(
+                        (result) => {
+                            that.setState(
+                                {
+                                    dataResult: result
+                                }
+                            );
+                        }
+                    );
+                    notification['success']({
+                                                message: result.message,
+                                                description: result.message,
+                                            });
+                }
+            }
+        )
+    }
 
     render() {
 
@@ -112,7 +171,8 @@ class List extends Component {
                 title: '状态',
                 dataIndex: 'jobStatus',
                 key: 'jobStatus',
-                render: (jobStatus) => (<Switch defaultChecked={this.onJobStatusChecked(jobStatus)} onChange={this.onJobStatusChange} />),
+                render: (jobStatus,record) => (<Switch defaultChecked={this.onJobStatusChecked(jobStatus)}
+                                                onChange={this.onJobStatusChange}/>),
             },
             {
                 title: '备注',
@@ -120,8 +180,6 @@ class List extends Component {
                 key: 'remark',
             },
         ];
-
-
 
         return (
             <div>
@@ -134,14 +192,37 @@ class List extends Component {
                         width="10"
                     />
                     <Button onClick={() => this.props.history.push('/add')}>新增</Button>
-                    <Button onClick={() => this.props.history.push('/update/' + this.state.selectedRowKeys[0])}>编辑</Button>
-                    <Button >删除</Button>
+                    <Button onClick={() => {
+                        if (this.state.selectedRowKeys[0] !== undefined
+                            && this.state.selectedRowKeys[0] !== '' && this.state.selectedRowKeys[0]
+                            !== null) {
+                            this.props.history.push('/update/' + this.state.selectedRowKeys[0])
+                        } else {
+                            notification['error']({
+                                                      message: '请选择编辑对象',
+                                                      description: '请选择编辑对象.',
+                                                  });
+                        }
+                    }}>编辑</Button>
+                    <Button onClick={() => {
+                        const that = this;
+                        if (this.state.selectedRowKeys[0] !== undefined
+                            && this.state.selectedRowKeys[0] !== '' && this.state.selectedRowKeys[0]
+                            !== null) {
+                            that.deleteEvent();
+                        } else {
+                            notification['error']({
+                                                      message: '请选择删除对象',
+                                                      description: '请选择删除对象.',
+                                                  });
+                        }
+                    }}>删除</Button>
                 </div>
-                <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.dataResult} rowKey={record => record.id}/>
+                <Table rowSelection={rowSelection} columns={columns}
+                       dataSource={this.state.dataResult} rowKey={record => record.id}/>
             </div>
         );
     }
 }
-
 
 export default withRouter(List);

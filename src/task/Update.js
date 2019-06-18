@@ -4,11 +4,12 @@ import { Input, Form, notification, Radio, Button } from 'antd';
 
 class Update extends Component {
     state = {
-        result: {}
+        dataResult: {},
+        jobStatus: 1,
     }
 
     componentDidMount = () => {
-        fetch('http://localhost:8088/task/' + this.props.match.params.id, {
+        fetch('http://localhost:8088/task/' + parseInt(this.props.match.params.id), {
             method: 'GET',
             credentials: 'include',
         }).then(response => response.json()).then(
@@ -21,7 +22,8 @@ class Update extends Component {
                     });
                 } else {
                     this.setState({
-                        result: result,
+                        dataResult: result,
+                        jobStatus: result.jobStatus,
                     })
                 }
             }
@@ -29,14 +31,15 @@ class Update extends Component {
     }
 
     handleSubmit = (e) => {
+        //阻止元素发生默认的行为（例如，当点击提交按钮时阻止对表单的提交）。
         e.preventDefault();
         const that = this;
         this.props.form.validateFieldsAndScroll((err, values) => {
             const tempValues = values;
             tempValues["jobStatus"] = that.state.jobStatus;
             if (!err) {
-                fetch('http://localhost:8088/task/', {
-                    method: 'POST',
+                fetch('http://localhost:8088/task/' + parseInt(this.props.match.params.id), {
+                    method: 'PUT',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json;charset:UTF-8',
@@ -178,6 +181,7 @@ class Update extends Component {
                     <Form.Item label="任务ID">
                         {getFieldDecorator(
                             'jobId', {
+                                initialValue: this.state.dataResult.jobId,
                                 rules: [
                                     {
                                         required: true,
@@ -185,12 +189,13 @@ class Update extends Component {
                                     }
                                 ]
                             }
-                        )(<Input placeholder="请输入任务ID" onBlur={this.jobIdConfirm} />)
+                        )(<Input placeholder="请输入任务ID" onBlur={this.jobIdConfirm} disabled/>)
                         }
                     </Form.Item>
                     <Form.Item label="Bean名称">
                         {getFieldDecorator(
                             'beanName', {
+                                initialValue: this.state.dataResult.beanName,
                                 rules: [
                                     {
                                         required: true,
@@ -204,6 +209,7 @@ class Update extends Component {
                     <Form.Item label="方法名称">
                         {getFieldDecorator(
                             'methodName', {
+                                initialValue: this.state.dataResult.methodName,
                                 rules: [
                                     {
                                         required: true,
@@ -217,6 +223,7 @@ class Update extends Component {
                     <Form.Item label="方法参数">
                         {getFieldDecorator(
                             'methodParams', {
+                                initialValue: this.state.dataResult.methodParams,
                                 rules: [
                                 ]
                             }
@@ -226,6 +233,7 @@ class Update extends Component {
                     <Form.Item label="Cron表达式">
                         {getFieldDecorator(
                             'cronExpression', {
+                                initialValue: this.state.dataResult.cronExpression,
                                 rules: [
                                     {
                                         required: true,
@@ -245,6 +253,7 @@ class Update extends Component {
                     <Form.Item label="备注">
                         {getFieldDecorator(
                             'remark', {
+                                initialValue: this.state.dataResult.remark,
                                 rules: [
                                 ]
                             }
